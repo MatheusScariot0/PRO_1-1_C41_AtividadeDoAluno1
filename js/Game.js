@@ -8,11 +8,12 @@ class Game {
     this.leader1 = createElement("h2");
     this.leader2 = createElement("h2");
     //crie a propriedade aqui
+    this.playerMoving = false
   }
 
   getState() {
     var gameStateRef = database.ref("gameState");
-    gameStateRef.on("value", function(data) {
+    gameStateRef.on("value", function (data) {
       gameState = data.val();
     });
   }
@@ -157,11 +158,15 @@ class Game {
 
           //alterar a posição da câmera na direção y
           camera.position.y = cars[index - 1].position.y;
+
         }
       }
 
       // crie a condicional aqui
-
+      if (!this.playerMoving) {
+        player.positionY += 5
+        player.update
+      }
       //manipulando eventos de teclado
       this.handlePlayerControls();
 
@@ -204,7 +209,16 @@ class Game {
   }
 
   showFuelBar() {
-    // crie a função aqui
+    push();
+    image(FuelImage, width / 2 - 130, height - player.positionY - 350, 20, 20);
+    fill("white");
+    rect(width / 2 - 100, height - player.positionY - 350, 185, 20);
+    fill("#ffc400");
+    rect(width / 2 - 100, height - player.positionY - 350, player.life, 20);
+    noStroke();
+    pop();
+
+
   }
 
   showLeaderboard() {
@@ -253,6 +267,9 @@ class Game {
   handlePlayerControls() {
     if (keyIsDown(UP_ARROW)) {
       // atualize os valores aqui
+
+      this.playerMoving = true;
+      player.positionY += 10;
       player.update();
     }
 
@@ -269,7 +286,7 @@ class Game {
 
   handleFuel(index) {
     //adicionando combustível
-    cars[index - 1].overlap(fuels, function(collector, collected) {
+    cars[index - 1].overlap(fuels, function (collector, collected) {
       player.fuel = 185;
       //o sprite é coletado no grupo de colecionáveis que desencadeou
       //o evento
@@ -278,13 +295,15 @@ class Game {
 
     // reduzindo o combustível do carro
 
-    
-    
-    
+    if (player.fuel > 0 && !this.playerMoving) {
+      player.fuel -= 0.3
+    }
+
+
   }
 
   handlePowerCoins(index) {
-    cars[index - 1].overlap(powerCoins, function(collector, collected) {
+    cars[index - 1].overlap(powerCoins, function (collector, collected) {
       player.score += 21;
       player.update();
       //o sprite é coletado no grupo de colecionáveis que desencadeou
